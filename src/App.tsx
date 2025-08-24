@@ -1,30 +1,52 @@
-import { DragDropContext, Draggable, Droppable } from 'react-beautiful-dnd';
+import { useState } from 'react';
+import { DragDropContext, Droppable, type DropResult } from 'react-beautiful-dnd';
 
 import Header from './components/organisms/Header';
 import CardList from './components/molecules/card/CardList';
-import { useCallback, useState } from 'react';
 
 import { dataBoard } from './mocks/data';
 
 function App() {
   const [trello, setTrello] = useState(dataBoard);
   
-  // using useCallback is optional
-  const onBeforeCapture = useCallback(() => {
-    /*...*/
-  }, []);
-  const onBeforeDragStart = useCallback(() => {
-    /*...*/
-  }, []);
-  const onDragStart = useCallback(() => {
-    /*...*/
-  }, []);
-  const onDragUpdate = useCallback(() => {
-    /*...*/
-  }, []);
-  const onDragEnd = useCallback(() => {
+  const onDragEnd = (result: DropResult) => {
     // the only one that is required
-  }, []);
+    console.log('onDragEnd: ', result)
+    const { type, draggableId, source, destination } = result;
+
+    if (!destination) return;
+
+    // TODO: drag & drop list
+    if (type === 'LIST') {
+      // ....
+      return;
+    }
+
+    const { droppableId: sourceDroppableId, index: sourceIndex } = source;
+    const { droppableId: destinationDroppableId, index: destinationIndex } = destination;
+
+    if (sourceDroppableId === destinationDroppableId) {
+      setTrello(prevState => {
+        const newCards = prevState.lists[destinationDroppableId].cards;
+        newCards.splice(sourceIndex, 1); // remove item
+        newCards.splice(destinationIndex, 0, draggableId); // add item
+
+        return {
+          ...prevState,
+          lists: {
+            ...prevState.lists,
+            [destinationDroppableId]: {
+              ...prevState.lists[destinationDroppableId],
+              cards: newCards
+            }
+          }
+        }
+      })
+      return;
+    }
+
+    // TODO: drag & drop card in different list
+  }
 
   console.log("trello: ", trello)
 
@@ -35,10 +57,6 @@ function App() {
       <main>
         <div className='container flex px-2'>
           <DragDropContext
-            onBeforeCapture={onBeforeCapture}
-            onBeforeDragStart={onBeforeDragStart}
-            onDragStart={onDragStart}
-            onDragUpdate={onDragUpdate}
             onDragEnd={onDragEnd}
           >
             <Droppable droppableId="drop-list" type="LIST" direction="horizontal" >
@@ -51,13 +69,10 @@ function App() {
                 > 
                   {trello.columns.map((listId, listIndex) => {
                     const listItem = trello.lists[listId];
+                    if (!listItem) return null;
+
                     const cards = listItem.cards.map(cardId => trello.cards[cardId]);
 
-                    console.log('columns: ', {
-                      listId,
-                      listItem,
-                      cards
-                    })
                     return (
                       <CardList 
                         key={listId}
@@ -68,9 +83,6 @@ function App() {
                       />
                     )
                   })}
-
-                    
-                    
                   {provided.placeholder}
                 </div>
               )}

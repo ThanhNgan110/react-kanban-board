@@ -40,7 +40,7 @@
 import type { Trello } from '../trello'
 
 export const dataBoard: Trello = {
-  columns: ['list-1', 'list-2'],
+  columns: ['list-1', 'list-2', 'list-3'],
   lists: {
     'list-1': {
       id: 'list-1',

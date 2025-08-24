@@ -5,7 +5,7 @@ export interface ListItem {
 }
 
 export interface List {
-  [key as string]: ListItem
+  [key: string]: ListItem
 }
 
 export interface CardItem {
@@ -19,9 +19,8 @@ export interface CardItem {
 }
 
 export interface Card {
-  [key as string]: CardItem
+  [key: string]: CardItem
 }
-
 
 export interface Trello {
   columns: string[],
